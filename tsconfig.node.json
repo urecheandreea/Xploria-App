@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    // Enable the composite project feature. This is usually used for projects with multiple sub-projects (monorepos),
+    // and it ensures TypeScript can build the project incrementally and manage references between multiple projects.
+    "composite": true,
+
+    // Specifies the module system to use for the compiled code. `ESNext` allows the use of the latest ECMAScript module syntax.
+    // In this case, it tells TypeScript to output code with native ES modules (e.g., `import`/`export`).
+    "module": "ESNext",
+
+    // Specifies how TypeScript should resolve modules. `Node` means it will resolve modules like Node.js does,
+    // following the Node.js module resolution strategy (like looking in `node_modules`, resolving from `package.json`, etc.).
+    "moduleResolution": "Node",
+
+    // Allows the use of default imports from modules that don't have a default export.
+    // For example, this allows you to do `import x from 'module'` even if `module` doesn't explicitly export a default.
+    "allowSyntheticDefaultImports": true
+  },
+  
+  // Specifies which files to include in the compilation. In this case, it includes the `vite.config.ts` file.
+  "include": ["vite.config.ts"]
+}

@@ -1,0 +1,58 @@
+{
+  "compilerOptions": {
+    // Specifies the target ECMAScript version for the compiled JavaScript code.
+    // "ESNext" means that the latest ECMAScript features should be used. This allows TypeScript to compile to the latest standards.
+    "target": "ESNext",
+
+    // Ensures that TypeScript uses the new behavior for class fields in ECMAScript, including `define` semantics.
+    "useDefineForClassFields": true,
+
+    // Defines the libraries that should be included during the compilation. 
+    // This includes browser-related APIs (`DOM`, `DOM.Iterable`) and the latest ECMAScript features.
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+
+    // Disables the ability to compile JavaScript files. Only TypeScript files are allowed in the compilation.
+    "allowJs": false,
+
+    // Skips type checking of declaration files (`*.d.ts`) for faster compilation.
+    // This can be useful to avoid unnecessary checks in large projects.
+    "skipLibCheck": true,
+
+    // Disables the default behavior that automatically adds the `esModuleInterop` flag for better interop with CommonJS modules.
+    "esModuleInterop": false,
+
+    // Allows importing modules that do not have a default export using `import x from 'module'`.
+    // Enables default imports for modules that might not have default exports, making it easier to import.
+    "allowSyntheticDefaultImports": true,
+
+    // Enables all strict type-checking options in TypeScript. This ensures type safety throughout the codebase.
+    "strict": true,
+
+    // Enforces consistent casing of file names across the project. This prevents issues that could arise when dealing with case-sensitive file systems.
+    "forceConsistentCasingInFileNames": true,
+
+    // Specifies that the output JavaScript should use ESNext-style modules (i.e., `import`/`export`).
+    "module": "ESNext",
+
+    // Defines how modules should be resolved. `Node` means it will resolve modules similar to how Node.js does.
+    "moduleResolution": "Node",
+
+    // Allows importing `.json` files directly as modules, which is useful for importing static data or configurations in JSON format.
+    "resolveJsonModule": true,
+
+    // Ensures that each file is treated as a separate module, which is important for TypeScript to properly type-check modules independently.
+    "isolatedModules": true,
+
+    // Tells TypeScript not to emit any JavaScript files. This is often used when you only want to type-check without generating JavaScript files.
+    "noEmit": true,
+
+    // Specifies that JSX files should be compiled with React 17+ JSX transformation (`react-jsx`).
+    "jsx": "react-jsx"
+  },
+
+  // Specifies the directories or files that TypeScript should include for compilation. Here, it is configured to include everything in the `src` folder.
+  "include": ["src"],
+
+  // References other configuration files, allowing the project to depend on additional configurations. In this case, it references `tsconfig.node.json` for the Node.js-related settings.
+  "references": [{ "path": "./tsconfig.node.json" }]
+}
