@@ -38,13 +38,13 @@ const ResetPasswordPage = () => {
 
     return (
         <div className="min-h-screen bg-green-50 flex flex-col items-center justify-start pt-12 px-4">
-            <h1 className="text-6xl font-serif text-green-700 mb-10 text-center">Xploria</h1>
+            <h1 className="text-4xl font-bold text-green-700 mb-10 text-center">Xploria</h1>
 
             <Card className="w-full max-w-md bg-green-100 shadow-md p-8">
-                <h2 className="text-center text-3xl font-serif text-green-700 mb-6">Reset Password</h2>
+                <h2 className="text-center text-3xl font-bold text-green-700 mb-6">Reset Password</h2>
                 <form className="flex flex-col gap-4">
                     <div>
-                        <label className="text-lg font-serif text-gray-700" htmlFor="email">
+                        <label className="text-lg font-bold text-gray-700" htmlFor="email">
                             E-mail
                         </label>
                         <input
