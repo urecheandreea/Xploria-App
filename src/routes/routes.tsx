@@ -5,7 +5,7 @@ import Verification from '../Pages/Auth/Verification';
 import UserProfile from '../Pages/UserProfile/UserProfile';
 import OwnProfile from '../Pages/UserProfile/OwnProfile';
 import Dashboard from '../Pages/Home/Dashboard';
-import AdminPage from '../components/group/AdminPage';
+/
 import Group from '../components/group/Group';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth, db } from '../Firebase/firebase';
@@ -49,15 +49,6 @@ export const routes = [
         ),
     })),
 
-    ...groupsId.map((group) => ({
-        path: `/admin-page/${group.id}`,
-        element: (
-            <div>
-                <NavbarComponent />
-                <AdminPage groupId={group.id} />
-            </div>
-        ),
-    })),
 
     ...groupsId.map((group) => ({
         path: `/group/${group.id}`,
@@ -85,10 +76,7 @@ export const routes = [
         path: '/verification',
         element: <Verification />,
     },
-    {
-        path: '/admin-page',
-        element: <AdminPage />,
-    },
+
     {
         path: '/group',
         element: <Group />,
