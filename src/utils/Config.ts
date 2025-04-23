@@ -1,0 +1,6 @@
+export const generatedSecret = {
+    ascii: '?:SD%oDD<E!^q^1N):??&QkeqRkhkpt&',
+    base32: 'H45FGRBFN5CEIPCFEFPHCXRRJYUTUPZ7EZIWWZLRKJVWQ23QOQTA',
+    hex: '3f3a5344256f44443c45215e715e314e293a3f3f26516b6571526b686b707426',
+    otpauth_url: 'otpauth://totp/Adidas%Adidas?secret=H45FGRBFN5CEIPCFEFPHCXRRJYUTUPZ7EZIWWZLRKJVWQ23QOQTA',
+};
