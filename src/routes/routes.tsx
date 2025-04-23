@@ -5,7 +5,7 @@ import Verification from '../Pages/Auth/Verification';
 import UserProfile from '../Pages/UserProfile/UserProfile';
 import OwnProfile from '../Pages/UserProfile/OwnProfile';
 import Dashboard from '../Pages/Home/Dashboard';
-/
+
 import Group from '../components/group/Group';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth, db } from '../Firebase/firebase';
