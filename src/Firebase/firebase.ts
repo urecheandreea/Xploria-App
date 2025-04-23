@@ -6,14 +6,14 @@ import { getStorage } from 'firebase/storage';
 
 /* Your web app's Firebase configuration */
 const firebaseConfig = {
-    apiKey: 'AIzaSyCQ_Bl4twjuu0g58C3nHzJuEOQBJHc3flg',
-    authDomain: 'vreausamergla-921d5.firebaseapp.com',
-    projectId: 'vreausamergla-921d5',
-    storageBucket: 'vreausamergla-921d5.appspot.com',
-    messagingSenderId: '1060999734392',
-    appId: '1:1060999734392:web:2dcd4b34f61392e1e2798d',
-    measurementId: 'G-J7N9W4G6YY',
-};
+    apiKey: "AIzaSyAv5vYzA5VEdTJs2YWONDhTrlfiMJEyHhI",
+    authDomain: "xploria-c5af3.firebaseapp.com",
+    projectId: "xploria-c5af3",
+    storageBucket: "xploria-c5af3.firebasestorage.app",
+    messagingSenderId: "718153401548",
+    appId: "1:718153401548:web:efadc84f08c1c4af58ae69",
+    measurementId: "G-63G78QPL18"
+  };
 
 /* Initialize Firebase */
 export const app = initializeApp(firebaseConfig);
