@@ -72,8 +72,10 @@ const CreatePostModal = () => {
                     icon: 'success',
                     title: 'Succes',
                     text: 'Evenimentul a fost creat cu succes!',
+
                     confirmButtonColor: '#307014',
                     iconColor: '#307014',
+
                 }).then(() => {
                     window.location.reload();
                 });
@@ -82,6 +84,7 @@ const CreatePostModal = () => {
     };
 
     return (
+
   <div className="flex flex-col">
     <Button
       onClick={toggleDialog}
@@ -154,6 +157,7 @@ const CreatePostModal = () => {
     </Dialog>
   </div>
 );
+
 
 };
 

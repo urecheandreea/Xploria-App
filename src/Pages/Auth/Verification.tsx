@@ -56,11 +56,11 @@ const Verification = () => {
         if (!isVerified) {
             Swal.fire({
                 icon: 'error',
-                iconColor: '#11AABE',
+                iconColor: '#307014',
                 title: 'Eroare',
                 text: 'Codul introdus este incorect',
                 confirmButtonText: 'Incearca din nou',
-                confirmButtonColor: '#11AABE',
+                confirmButtonColor: '#307014',
             });
         } else {
             // modify the twoFactorAuth field in the database
@@ -83,11 +83,11 @@ const Verification = () => {
             <Card className="h-4/5  bg-carousel w-3/5 mx-auto">
                 <img className="mx-auto p-10" width="350px mt-32" src={`${image}`} />
 
-                <label className="text-3xl text-center font-bold text-gray-700 dark:text-gray-200" htmlFor="text">
+                <label className="text-3xl text-center font-bold text-gray-700 dark:text-gray-100" htmlFor="text">
                     Cod de verificare
                 </label>
                 <input
-                    className="mx-64 px-2 py-2 mt-2 border-2 border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:border-turq"
+                    className="mx-64 px-2 py-2 mt-2 border-2 border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:border-green-700"
                     type="text"
                     id="text"
                     value={inputValue}
@@ -96,7 +96,7 @@ const Verification = () => {
                         setInputValue(e.target.value);
                     }}
                 />
-                <Button className="bg-turq text-sm mt-2 mx-auto" onClick={verifyCode}>
+                <Button className="bg-green-700 text-sm mt-2 mx-auto" onClick={verifyCode}>
                     Verificare
                 </Button>
             </Card>
