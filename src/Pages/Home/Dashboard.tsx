@@ -39,9 +39,9 @@ const Dashboard = () => {
                     title: 'Atentie',
                     text: 'Trebuie sa treci de verificarea in doi pasi pentru a accesa acest continut',
                     icon: 'warning',
-                    iconColor: '#11AABE',
+                    iconColor: '#307014',
                     confirmButtonText: 'Ok',
-                    confirmButtonColor: '#11AABE',
+                    confirmButtonColor: '#307014',
                 });
                 navigate('/verification');
                 return;
@@ -93,6 +93,9 @@ const Dashboard = () => {
       <NavbarComponent />
       <div className="mx-96 mt-10 h-full">
         <div className="bg-formAuth rounded-lg shadow-lg pb-10">
+            <div className="my-5 mx-5">
+            <CreatePostModal />
+          </div>
         
         </div>
       </div>
