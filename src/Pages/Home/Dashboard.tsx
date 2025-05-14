@@ -87,13 +87,17 @@ const Dashboard = () => {
             </div>
         );
     }
-
-  return (
+ return (
     <div className="h-full">
       <NavbarComponent />
       <div className="mx-96 mt-10 h-full">
         <div className="bg-formAuth rounded-lg shadow-lg pb-10">
-        
+          <div className="my-5 mx-5">
+            <CreatePostModal />
+          </div>
+          {groups.map((groupData) => (
+            <Post key={groupData.id} group={groupData.group} groupId={groupData.id} />
+          ))}
         </div>
       </div>
     </div>

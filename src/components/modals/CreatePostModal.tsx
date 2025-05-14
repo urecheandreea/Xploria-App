@@ -83,8 +83,8 @@ const CreatePostModal = () => {
 
     return (
         <div className="flex flex-col">
-            <Button onClick={toggleDialog} className="self-center bg-turq mx-2 my-4">
-                Creeaza eveniment
+            <Button onClick={toggleDialog} className="self-stretch  bg-light-green-800 mx-2 my-4">
+                ADD NEW EVENT
             </Button>
             <Dialog open={open} handler={toggleDialog}>
                 <DialogHeader>Publica un nou eveniment!</DialogHeader>
