@@ -6,8 +6,11 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { useNavigate } from 'react-router-dom';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, auth, storage } from '../../Firebase/firebase';
+import { useState } from 'react';
+import { Card, CardBody, Button } from '@material-tailwind/react';
 
 const OwnProfile = () => {
+     const [activeTab, setActiveTab] = useState<'friends' | 'requests' | null>(null);
     const [user] = useAuthState(auth);
     const [userName, setUserName] = useState('');
     const [name, setName] = useState('');
@@ -76,9 +79,9 @@ const OwnProfile = () => {
 
     const editUserData = async () => {
         Swal.fire({
-            title: 'Editeaza datele',
-            html: `<input id="swal-input1" class="swal2-input" placeholder="Nume" value="${name}">
-                     <input id="swal-input2" class="swal2-input" placeholder="Descriere" value="${biography}">`,
+            title: 'Edit your profile',
+            html: `<input id="swal-input1" class="swal2-input" placeholder="Name" value="${name}">
+                     <input id="swal-input2" class="swal2-input" placeholder="Description" value="${biography}">`,
             focusConfirm: false,
             showCancelButton: true,
             confirmButtonColor: '#307014',
@@ -104,7 +107,7 @@ const OwnProfile = () => {
 
     const addAHobby = async () => {
         Swal.fire({
-            title: 'Adauga un hobby',
+            title: 'Add a hobby',
             input: 'text',
             inputLabel: 'Hobby',
             inputPlaceholder: 'Hobby',
@@ -113,7 +116,7 @@ const OwnProfile = () => {
             iconColor: '#307014',
             inputValidator: (value) => {
                 if (!value) {
-                    return 'Trebuie sa introduci un hobby!';
+                    return 'Please enter a hobby';
                 }
             },
         }).then((result) => {
@@ -213,7 +216,7 @@ const OwnProfile = () => {
                 }
             })
             .catch((error) => {
-                console.log('Error getting document:', error);
+                console.log('Error getting the document:', error);
             });
 
         /* add the user to the friend list */
@@ -234,8 +237,8 @@ const OwnProfile = () => {
 
         /* display a success message */
         Swal.fire({
-            icon: 'success',
-            title: 'Cererea a fost acceptata!',
+            icon: 'Success',
+            title: 'The request has been accepted!',
             showConfirmButton: false,
             timer: 1500,
             confirmButtonColor: '#307014',
@@ -265,8 +268,8 @@ const OwnProfile = () => {
         );
 
         Swal.fire({
-            icon: 'success',
-            title: 'Cererea a fost refuzata!',
+            icon: 'Success',
+            title: 'The request has been declined!',
             showConfirmButton: false,
             timer: 1500,
             confirmButtonColor: '#307014',
@@ -285,8 +288,8 @@ const OwnProfile = () => {
             // Check two-factor authentication value here
             if (!data?.twoFactorAuth) {
                 Swal.fire({
-                    title: 'Atentie',
-                    text: 'Trebuie sa treci de verificarea in doi pasi pentru a accesa acest continut',
+                    title: 'Attention',
+                    text: 'You need to pass the two-step verification to access this content',
                     icon: 'warning',
                     iconColor: '#307014',
                     confirmButtonText: 'Ok',
@@ -322,8 +325,8 @@ const OwnProfile = () => {
         });
         uploadBytes(imageRef, imageUpload).then(() => {
             Swal.fire({
-                icon: 'success',
-                title: 'Poza de profil a fost schimbata!',
+                icon: 'Success',
+                title: 'Profile picture updated successfully!',
                 showConfirmButton: false,
                 timer: 1500,
                 confirmButtonColor: '#307014',
@@ -332,94 +335,162 @@ const OwnProfile = () => {
         });
     };
 
-    return (
-        <div className="col flex mx-20 mt-10 gap-10">
-            <Card className="mx-auto bg-cardColor w-1/3">
-                <CardBody>
-                    <img src={profilePicture} className="w-32 h-32 rounded-full object-cover" alt="" />
-                    {/* add a form to change the profile picture */}
-                    <div className="flex flex-col gap-2 mt-2">
-                        <input
-                            type="file"
-                            onChange={(event) => {
-                                setImageUpload(event.target.files[0]);
-                            }}
-                        ></input>
-                        <Button className="bg-green-700 text-white" onClick={uploadImage}>
-                            Schimba poza
+ 
+    
+      return (
+    <div className="min-h-screen bg-gray-100 py-10 px-4">
+      <div className="container mx-auto flex flex-col lg:flex-row gap-10">
+        {/* CARD PROFIL */}
+        <Card className="bg-white w-full lg:w-1/3 shadow-lg rounded-lg p-6">
+          <CardBody className="flex flex-col items-center">
+            <img
+              src={profilePicture}
+              alt="Profile"
+              className="w-32 h-32 rounded-full object-cover border-4 border-green-600 mb-4"
+            />
+            <Button
+            className="bg-green-600 text-white text-sm mt-4"
+            onClick={() => document.getElementById('uploadInput').click()}
+            >
+            Change Profile Picture
+            </Button>
+            <input
+            id="uploadInput"
+            type="file"
+            className="hidden"
+            onChange={(e) => setImageUpload(e.target.files[0])}
+            />
+            <h1 className="text-2xl font-bold text-gray-800">{name}</h1>
+            <h2 className="text-gray-500">@{userName}</h2>
+            <p className="mt-4 text-center italic text-gray-700">{biography}</p>
+
+            {/* Butoane acțiuni */}
+            <div className="flex flex-wrap justify-center gap-3 mt-6 w-full">
+              <Button className="bg-green-700 text-white text-sm" onClick={editUserData}>
+                Edit Profile
+              </Button>
+              <Button className="bg-green-500 text-white text-sm" onClick={handleSeeAllPosts}>
+                {seeAllPosts ? 'see friend\'s posts' : 'All posts'}
+              </Button>
+              <Button className="bg-green-400 text-white text-sm" onClick={addAHobby}>
+                Add a hobby
+              </Button>
+            </div>
+
+            {/* Lista hobby-uri */}
+            <div className="mt-6 w-full">
+              {hobbyList?.map((hobby) => (
+                <div
+                  key={hobby}
+                  className="flex justify-between items-center bg-green-100 text-green-900 px-4 py-2 rounded-md mb-2"
+                >
+                  <span>{hobby}</span>
+                  <Button
+                    className="bg-red-500 text-white text-sm px-3 py-1"
+                    onClick={() => removeHobby(hobby)}
+                  >
+                    Delete
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </CardBody>
+        </Card>
+
+        {/* CARD INTERACTIV CU TABURI */}
+        <Card className="bg-white w-full lg:w-2/3 shadow-lg rounded-lg p-6">
+          <CardBody>
+            {/* Butoane tab */}
+            <div className="flex justify-center gap-6 mb-6">
+              <Button
+                className={`${
+                  activeTab === 'friends' ? 'bg-green-700' : 'bg-green-400'
+                } text-white`}
+                onClick={() => setActiveTab('friends')}
+              >
+                Friends
+              </Button>
+              <Button
+                className={`${
+                  activeTab === 'requests' ? 'bg-green-700' : 'bg-green-400'
+                } text-white`}
+                onClick={() => setActiveTab('requests')}
+              >
+                Requests
+              </Button>
+            </div>
+
+            {/* SECȚIUNI CONDIȚIONALE */}
+            {activeTab === 'friends' && (
+              <div>
+                <h2 className="text-xl text-green-700 font-semibold mb-4 text-center">Friends</h2>
+                {friendsListWithPictures?.length === 0 ? (
+                  <p className="text-center text-gray-500">
+                    You have no friends yet. Start adding some!
+                  </p>
+                ) : (
+                  friendsListWithPictures.map((friend) => (
+                    <div key={friend.username} className="flex items-center gap-3 mb-4">
+                      <img
+                        src={friend.profilePicture}
+                        className="w-12 h-12 rounded-full border-2 border-green-600"
+                        alt=""
+                      />
+                      <h3
+                        className="text-gray-800 cursor-pointer hover:text-green-600"
+                        onClick={() => navigate(`/profile/${friend.username}`)}
+                      >
+                        @{friend.username}
+                      </h3>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+
+            {activeTab === 'requests' && (
+              <div>
+                <h2 className="text-xl text-green-700 font-semibold mb-4 text-center">Friends requests</h2>
+                {pendingRequestsWithPictures?.length === 0 ? (
+                  <p className="text-center text-gray-500">You don't have new requests</p>
+                ) : (
+                  pendingRequestsWithPictures.map((request) => (
+                    <div key={request.username} className="flex items-center gap-3 mb-4">
+                      <img
+                        src={request.profilePicture}
+                        className="w-12 h-12 rounded-full border-2 border-green-600"
+                        alt=""
+                      />
+                      <h3
+                        className="text-gray-800 cursor-pointer hover:text-green-600"
+                        onClick={() => navigate(`/profile/${request.username}`)}
+                      >
+                        @{request.username}
+                      </h3>
+                      <div className="flex gap-2 ml-auto">
+                        <Button
+                          className="bg-green-600 text-white text-sm px-3 py-1"
+                          onClick={() => acceptRequest(request)}
+                        >
+                          Accept
                         </Button>
+                        <Button
+                          className="bg-red-500 text-white text-sm px-3 py-1"
+                          onClick={() => declineRequest(request)}
+                        >
+                          Decline
+                        </Button>
+                      </div>
                     </div>
-                    <h1 className="text-white text-2xl mt-5 font-bold dark">{name} </h1>
-                    <h1 className="text-gray-500 text-xl mt-1">@{userName}</h1>
-                    <Button className="text-center mt-4 bg-green-700 text-sm" onClick={editUserData}>
-                        Editeaza
-                    </Button>
-                    <Button className="text-center mt-4 bg-green-700 text-sm mx-4" onClick={handleSeeAllPosts}>
-                        {seeAllPosts ? 'Vezi postarile prietenilor' : 'Vezi toate postarile'}
-                    </Button>
-                    <p className="text-white text-xl mt-5 italic">{biography} </p>
-                    <Button className="text-center mt-4 bg-green-700 text-sm" onClick={addAHobby}>
-                        Adauga hobby
-                    </Button>
-                    {hobbyList?.map((hobby) => (
-                        <div className="flex justify-between mt-5">
-                            <h1 className="text-white text-lg">{hobby}</h1>
-                            <Button className="text-center mt-4 bg-red-500 text-sm" onClick={() => removeHobby(hobby)}>
-                                Sterge
-                            </Button>
-                        </div>
-                    ))}{' '}
-                </CardBody>
-            </Card>
-            <Card className="bg-cardColor w-2/3">
-                <CardBody>
-                    <div className="flex flex-row gap-64 mx-16">
-                        <div className="row">
-                            <h1 className="text-4xl text-white text-center">PRIETENII TAI</h1>
-                            {friendsListWithPictures?.map((friend) => (
-                                <div className="flex mt-5">
-                                    <img src={friend.profilePicture} className="w-20 h-20 rounded-full" alt="" />
-                                    <h1
-                                        className="text-white text-xl italic my-auto cursor-pointer mx-2 hover:text-green-700"
-                                        onClick={() => navigate(`/profile/${friend.username}`)}
-                                    >
-                                        @{friend.username}
-                                    </h1>
-                                </div>
-                            ))}
-                        </div>
-                        <div className="row">
-                            <h1 className="text-4xl text-white text-center">CERERI DE PRIETENIE</h1>
-                            {pendingRequestsWithPictures?.map((request) => (
-                                <div className="flex mt-5">
-                                    <img src={request.profilePicture} className="w-20 h-20 rounded-full" alt="" />
-                                    <h1
-                                        className="text-white text-xl italic my-auto cursor-pointer mx-2"
-                                        onClick={() => navigate(`/profile/${request.username}`)}
-                                    >
-                                        @{request.username}
-                                    </h1>
-                                    <div className="flex gap-1 mt-5">
-                                        <Button
-                                            className="text-center bg-green-500 w-20 h-10 px-1"
-                                            onClick={() => acceptRequest(request)}
-                                        >
-                                            Accepta
-                                        </Button>
-                                        <Button
-                                            className="text-center bg-red-500 w-20 h-10 px-1"
-                                            onClick={() => declineRequest(request)}
-                                        >
-                                            Respinge
-                                        </Button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </CardBody>
-            </Card>
-        </div>
-    );
+                  ))
+                )}
+              </div>
+            )}
+          </CardBody>
+        </Card>
+      </div>
+    </div>
+  );
+
 };
 export default OwnProfile;
