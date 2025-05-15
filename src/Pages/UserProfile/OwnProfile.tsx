@@ -166,18 +166,18 @@ const OwnProfile = () => {
     setHobbyList(hobbyList?.filter((hobbyItem) => hobbyItem !== hobby));
   };
 
-  const handleSeeAllPosts = async () => {
-    setDoc(
-      doc(db, "users", user?.uid),
-      {
-        seeAllPosts: !seeAllPosts,
-      },
-      {
-        merge: true,
-      }
-    );
-    setSeeAllPosts(!seeAllPosts);
-  };
+  // const handleSeeAllPosts = async () => {
+  //   setDoc(
+  //     doc(db, "users", user?.uid),
+  //     {
+  //       seeAllPosts: !seeAllPosts,
+  //     },
+  //     {
+  //       merge: true,
+  //     }
+  //   );
+  //   setSeeAllPosts(!seeAllPosts);
+  // };
 
   const acceptRequest = (requestObject) => {
     /* remove from pending request and add to friends list */
@@ -401,12 +401,8 @@ const OwnProfile = () => {
               >
                 Edit Profile
               </Button>
-              <Button
-                className="bg-green-500 text-white text-sm"
-                onClick={handleSeeAllPosts}
-              >
-                {seeAllPosts ? "see friend's posts" : "All posts"}
-              </Button>
+             
+              
               <Button
                 className="bg-green-400 text-white text-sm"
                 onClick={addAHobby}
