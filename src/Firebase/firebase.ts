@@ -6,13 +6,13 @@ import { getStorage } from 'firebase/storage';
 
 /* Your web app's Firebase configuration */
 const firebaseConfig = {
-    apiKey: "AIzaSyAv5vYzA5VEdTJs2YWONDhTrlfiMJEyHhI",
-    authDomain: "xploria-c5af3.firebaseapp.com",
-    projectId: "xploria-c5af3",
-    storageBucket: "xploria-c5af3.firebasestorage.app",
-    messagingSenderId: "718153401548",
-    appId: "1:718153401548:web:efadc84f08c1c4af58ae69",
-    measurementId: "G-63G78QPL18"
+apiKey: "AIzaSyAWydz9yIagGNRUrvYop7EXwgKXuUW5-YA",
+  authDomain: "xploria-fe167.firebaseapp.com",
+  projectId: "xploria-fe167",
+  storageBucket: "xploria-fe167.firebasestorage.app",
+  messagingSenderId: "362031361011",
+  appId: "1:362031361011:web:755e219c143dee2c678086",
+  measurementId: "G-RF7K077744"
   };
 
 /* Initialize Firebase */
