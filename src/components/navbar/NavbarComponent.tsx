@@ -87,8 +87,9 @@ export default function NavbarComponent() {
           <img
             src="src/assets/leafs-svgrepo-com (1).svg"
             alt="Frunze"
-            className="w-8 h-8 transform -rotate-45 opacity-90"
+            className="w-20 h-20 transform -rotate-45 opacity-90"
           />
+
           <Typography
             variant="h4"
             className="cursor-pointer text-green-700 text-6xl font-bold font-poppins"
