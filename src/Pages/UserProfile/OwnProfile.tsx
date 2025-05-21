@@ -17,6 +17,19 @@ import { db, auth, storage } from "../../Firebase/firebase";
 import { useState } from "react";
 import { Card, CardBody, Button } from "@material-tailwind/react";
 
+const predefinedHobbies = [
+  "fotbal",
+  "baschet",
+  "citit",
+  "muzică",
+  "programare",
+  "cooking",
+  "călătorii",
+  "board games",
+  "dans",
+  "fotografie",
+];
+
 const OwnProfile = () => {
   const [activeTab, setActiveTab] = useState<"friends" | "requests" | null>(
     null
@@ -124,33 +137,40 @@ const OwnProfile = () => {
   };
 
   const addAHobby = async () => {
-    Swal.fire({
-      title: "Add a hobby",
-      input: "text",
-      inputLabel: "Hobby",
-      inputPlaceholder: "Hobby",
+    const htmlOptions = predefinedHobbies
+      .map(
+        (hobby) =>
+          `<div style="text-align: left; padding: 5px;"><input type="checkbox" id="${hobby}" name="${hobby}" value="${hobby}"> <label for="${hobby}">${hobby}</label></div>`
+      )
+      .join("");
+
+    const { value: confirmed } = await Swal.fire({
+      title: "Select your hobbies",
+      html: `<form id="hobbyForm">${htmlOptions}</form>`,
       showCancelButton: true,
+      confirmButtonText: "Save",
       confirmButtonColor: "#307014",
       iconColor: "#307014",
-      inputValidator: (value) => {
-        if (!value) {
-          return "Please enter a hobby";
+      preConfirm: () => {
+        const checkboxes = document.querySelectorAll("#hobbyForm input[type=checkbox]:checked");
+        const selected = Array.from(checkboxes).map((el) => el.value);
+        if (selected.length === 0) {
+          Swal.showValidationMessage("Please select at least one hobby");
+          return;
         }
+        return selected;
       },
-    }).then((result) => {
-      if (result.isConfirmed) {
-        setDoc(
-          doc(db, "users", user?.uid),
-          {
-            hobbyList: [...hobbyList, result.value],
-          },
-          {
-            merge: true,
-          }
-        );
-        setHobbyList([...hobbyList, result.value]);
-      }
     });
+
+    if (confirmed) {
+      const newHobbies = [...new Set([...hobbyList, ...confirmed])];
+      await setDoc(
+        doc(db, "users", user?.uid),
+        { hobbyList: newHobbies },
+        { merge: true }
+      );
+      setHobbyList(newHobbies);
+    }
   };
 
   const removeHobby = async (hobby) => {

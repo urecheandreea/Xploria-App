@@ -139,21 +139,15 @@ const Post: FC<PostProps> = ({ group, groupId }) => {
                     >
                         {`${group.title}`}
                     </div>
+                    {group.hobbyTags?.length > 0 && (
+                        <div className="text-sm italic text-gray-400 mt-1">
+                            Hobby-uri: {group.hobbyTags.join(', ')}
+                        </div>
+                    )}
                     <div className="text-white mt-1">{eventDateString}</div>
                     <div className="text-green-700 mt-1">{`${group.noParticipants} participanti`}</div>
                     <div className="text-white mt-1">{group.description}</div>
 
-                    <div>
-                        <h1 className="text-white font-bold dark mt-2">Lista Participanti</h1>
-                        {group.participants?.map((participant) => (
-                            <div
-                                className="text-white mt-1 cursor-pointer hover:text-green-700"
-                                onClick={() => navigate('/profile/' + participant.username)}
-                            >
-                                {participant.username}
-                            </div>
-                        ))}
-                    </div>
                     <div className="flex gap-3">
                         <Button
                             hidden={statusParticipantButton}

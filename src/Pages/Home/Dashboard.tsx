@@ -1,19 +1,19 @@
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Spinner } from '@material-tailwind/react';
+import { Spinner, Button } from '@material-tailwind/react';
 import Swal from 'sweetalert2';
 import { collection, orderBy, query, getDocs, where, doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../../Firebase/firebase';
 import Post from '../../components/group/Post';
 import CreatePostModal from '../../components/modals/CreatePostModal';  
-import useDasboard from './useDasboard';
 import NavbarComponent from '../../components/navbar/NavbarComponent';
 
 const Dashboard = () => {
     const [user] = useAuthState(auth);
     const [groups, setGroups] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [mode, setMode] = useState<'all' | 'matchmaking'>('all');
     const navigate = useNavigate();
     const groupsRef = collection(db, 'groups');
 
@@ -24,16 +24,13 @@ const Dashboard = () => {
 
     useEffect(() => {
         checkTwoFactorAuth();
-    });
-
-    console.log(groups)
+    }, [mode]);
 
     const checkTwoFactorAuth = async () => {
         const documentRefDatabase = doc(db, 'users', user?.uid);
         const documentSnapshot = await getDoc(documentRefDatabase);
         if (documentSnapshot.exists()) {
             const data = documentSnapshot.data();
-            // Check two-factor authentication value here
             if (!data?.twoFactorAuth) {
                 Swal.fire({
                     title: 'Atentie',
@@ -48,29 +45,62 @@ const Dashboard = () => {
             }
 
             const seeAllPosts = data?.seeAllPosts;
+            const userHobbies = data?.hobbyTags || [];
             const friendUsernames = data?.friendsList.map((friend) => friend.username);
             const friendIdsQuery = query(collection(db, 'users'), where('username', 'in', friendUsernames));
             const friendIdsQuerySnapshot = await getDocs(friendIdsQuery);
             const friendIdsData = friendIdsQuerySnapshot.docs.map((document) => document.id);
+
+            const friendsData = friendIdsQuerySnapshot.docs.map((document) => ({
+                id: document.id,
+                username: document.data().username,
+                hobbyTags: document.data().hobbyTags || []
+            }));
+
             const fetchQuery = query(groupsRef, orderBy('dateCreated', 'desc'));
             const querySnapshot = await getDocs(fetchQuery);
-            if (seeAllPosts) {
-                const groupsData = querySnapshot.docs.map((document) => ({
-                    id: document.id,
-                    group: document.data(),
-                }));
-                setGroups(groupsData);
-            } else {
-                const groupsData = querySnapshot.docs
-                    .filter(
-                        (document) => friendIdsData.includes(document.data().creatorId) || document.data().creatorId === user.uid
-                    )
-                    .map((document) => ({
+
+            let filteredGroups = [];
+
+            if (mode === 'all') {
+                if (seeAllPosts) {
+                    filteredGroups = querySnapshot.docs.map((document) => ({
                         id: document.id,
                         group: document.data(),
                     }));
-                setGroups(groupsData);
+                } else {
+                    filteredGroups = querySnapshot.docs
+                        .filter(
+                            (document) => friendIdsData.includes(document.data().creatorId) || document.data().creatorId === user.uid
+                        )
+                        .map((document) => ({
+                            id: document.id,
+                            group: document.data(),
+                        }));
+                }
+            } else if (mode === 'matchmaking') {
+                filteredGroups = querySnapshot.docs.map((doc) => {
+                    const group = doc.data();
+                    const eventHobbies = group.hobbyTags || [];
+                    const matchingFriends = friendsData.filter(friend =>
+                        friend.hobbyTags.some(hobby => eventHobbies.includes(hobby) && userHobbies.includes(hobby))
+                    );
+                    const commonHobbies = eventHobbies.filter(hobby => userHobbies.includes(hobby));
+
+                    if (matchingFriends.length > 0 && commonHobbies.length > 0) {
+                        const friendNames = matchingFriends.map(f => f.username);
+                        const message = `Tu și ${friendNames.join(', ')} aveți în comun hobby-ul ${commonHobbies.join(', ')} – vezi acest eveniment!`;
+                        return {
+                            id: doc.id,
+                            group,
+                            matchMessage: message
+                        };
+                    }
+                    return null;
+                }).filter(Boolean);
             }
+
+            setGroups(filteredGroups);
             setLoading(false);
         }
     };
@@ -83,27 +113,39 @@ const Dashboard = () => {
                         <div className="w-40 h-40 border-t-4 border-b-4 border-white rounded-full animate-spin"></div>
                     </div>
                 </div>
-    
             </div>
         );
     }
- return (
-    <div className="h-full">
-      <NavbarComponent />
-      <div className="mx-96 mt-10 h-full">
-        <div className="bg-formAuth rounded-lg shadow-lg pb-10">
 
-          <div className="my-5 mx-5">
-            <CreatePostModal />
-          </div>
-          {groups.map((groupData) => (
-            <Post key={groupData.id} group={groupData.group} groupId={groupData.id} />
-          ))}
-
+    return (
+        <div className="h-full">
+            <NavbarComponent />
+            <div className="mx-96 mt-10 h-full">
+                <div className="bg-formAuth rounded-lg shadow-lg pb-10">
+                    <div className="my-5 mx-5">
+                        <CreatePostModal />
+                        <div className="flex space-x-4 mt-4">
+                            <Button
+                                onClick={() => setMode('all')}
+                                className={mode === 'all' ? 'bg-green-700 text-white' : 'bg-white text-green-700'}
+                            >
+                                All Events
+                            </Button>
+                            <Button
+                                onClick={() => setMode('matchmaking')}
+                                className={mode === 'matchmaking' ? 'bg-green-700 text-white' : 'bg-white text-green-700'}
+                            >
+                                Matchmaking Events
+                            </Button>
+                        </div>
+                    </div>
+                    {groups.map((groupData) => (
+                        <Post key={groupData.id} group={groupData.group} groupId={groupData.id} matchMessage={groupData.matchMessage} />
+                    ))}
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default Dashboard;

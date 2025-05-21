@@ -9,17 +9,31 @@ import { db } from '../../Firebase/firebase';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 
+const predefinedHobbies = [
+  "fotbal",
+  "baschet",
+  "citit",
+  "muzică",
+  "programare",
+  "cooking",
+  "călătorii",
+  "board games",
+  "dans",
+  "fotografie",
+];
+
 const AdminPage = ({ groupId }) => {
     const navigate = useNavigate();
 
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [location, setLocation] = useState('');
-    const [category, setCategory] = useState('');
     const [eventDate, setEventDate] = useState<Date>(new Date());
     const [pendingRequest, setPendingRequest] = useState([]);
     const [participants, setParticipants] = useState([]);
     const [creatorId, setCreatorId] = useState('');
+    const [selectedHobbies, setSelectedHobbies] = useState<string[]>([]);
+
     let currentDate = new Date();
 
     const [user] = useAuthState(auth);
@@ -35,13 +49,12 @@ const AdminPage = ({ groupId }) => {
             setTitle(data?.title);
             setDescription(data?.description);
             setLocation(data?.location);
-            setCategory(data?.category);
             setEventDate(data?.eventDate);
             setPendingRequest(data?.pendingRequest);
             setParticipants(data?.participants);
             setCreatorId(data?.creatorId);
+            setSelectedHobbies(data?.hobbyTags || []);
             currentDate = data?.eventDate;
-            console.log(data?.creatorId);
             if (data?.creatorId !== user.uid) {
                 Swal.fire({
                     title: 'Atentie',
@@ -58,15 +71,13 @@ const AdminPage = ({ groupId }) => {
     };
 
     const updateDataGroup = async () => {
-        console.log(eventDate);
         const newDate = eventDate !== null ? eventDate : currentDate.toISOString();
-        console.log(eventDate);
         await updateDocument('groups', groupId, {
             title: title,
             description: description,
             location: location,
-            category: category,
             eventDate: newDate,
+            hobbyTags: selectedHobbies,
         });
 
         Swal.fire({
@@ -83,7 +94,6 @@ const AdminPage = ({ groupId }) => {
         const documentSnapshot = await getDoc(documentRefDatabase);
         if (documentSnapshot.exists()) {
             const data = documentSnapshot.data();
-            // Check two-factor authentication value here
             if (!data?.twoFactorAuth) {
                 Swal.fire({
                     title: 'Atentie',
@@ -105,11 +115,9 @@ const AdminPage = ({ groupId }) => {
 
     const acceptRequest = async (request) => {
         const documentRefDatabase = doc(db, 'groups', groupId);
-
         const documentSnapshot = await getDoc(documentRefDatabase);
 
         if (documentSnapshot.exists()) {
-            /* add a new member to the group */
             const newParticipants = [
                 ...participants,
                 {
@@ -118,15 +126,11 @@ const AdminPage = ({ groupId }) => {
                 },
             ];
 
-            // add member to group using setDoc and merge: true
             await setDoc(documentRefDatabase, { participants: newParticipants }, { merge: true });
 
-            /* remove the request from the pending requests */
             const newPendingRequests = pendingRequest.filter((pendingRequest) => pendingRequest.id !== request.id);
-
             const newNoParticipants = documentSnapshot.data()?.noParticipants + 1;
 
-            // remove request from group using setDoc and merge: true
             await setDoc(
                 documentRefDatabase,
                 { pendingRequest: newPendingRequests, noParticipants: newNoParticipants },
@@ -146,14 +150,10 @@ const AdminPage = ({ groupId }) => {
 
     const rejectRequest = async (request) => {
         const documentRefDatabase = doc(db, 'groups', groupId);
-
         const documentSnapshot = await getDoc(documentRefDatabase);
 
         if (documentSnapshot.exists()) {
-            /* remove the request from the pending requests */
             const newPendingRequests = pendingRequest.filter((pendingRequest) => pendingRequest.id !== request.id);
-
-            // remove request from group using setDoc and merge: true
 
             await setDoc(documentRefDatabase, { pendingRequest: newPendingRequests }, { merge: true });
 
@@ -177,9 +177,7 @@ const AdminPage = ({ groupId }) => {
                     <Input
                         className="bg-gray-200"
                         value={title}
-                        onChange={(e) => {
-                            setTitle(e.target.value);
-                        }}
+                        onChange={(e) => setTitle(e.target.value)}
                     />
                 </div>
                 <div className="mb-5">
@@ -187,9 +185,7 @@ const AdminPage = ({ groupId }) => {
                     <Input
                         className="bg-gray-200"
                         value={description}
-                        onChange={(e) => {
-                            setDescription(e.target.value);
-                        }}
+                        onChange={(e) => setDescription(e.target.value)}
                     />
                 </div>
                 <div className="mb-5">
@@ -197,19 +193,7 @@ const AdminPage = ({ groupId }) => {
                     <Input
                         className="bg-gray-200"
                         value={location}
-                        onChange={(e) => {
-                            setLocation(e.target.value);
-                        }}
-                    />
-                </div>
-                <div className="mb-5">
-                    <Typography variant="h6">Categoria evenimentului</Typography>
-                    <Input
-                        className="bg-gray-200"
-                        value={category}
-                        onChange={(e) => {
-                            setCategory(e.target.value);
-                        }}
+                        onChange={(e) => setLocation(e.target.value)}
                     />
                 </div>
                 <div className="mb-5">
@@ -217,37 +201,46 @@ const AdminPage = ({ groupId }) => {
                     <input
                         type="date"
                         className="bg-gray-200"
-                        onChange={(e) => {
-                            setEventDate(new Date(e.target.value));
-                        }}
+                        onChange={(e) => setEventDate(new Date(e.target.value))}
                     />
+                </div>
+                <div className="mb-5">
+                    <Typography variant="h6">Hobby-uri ale evenimentului</Typography>
+                    <div className="grid grid-cols-2 gap-2">
+                        {predefinedHobbies.map((hobby) => (
+                            <label key={hobby} className="flex items-center space-x-2">
+                                <input
+                                    type="checkbox"
+                                    value={hobby}
+                                    checked={selectedHobbies.includes(hobby)}
+                                    onChange={(e) => {
+                                        const isChecked = e.target.checked;
+                                        setSelectedHobbies((prev) =>
+                                            isChecked
+                                                ? [...prev, hobby]
+                                                : prev.filter((item) => item !== hobby)
+                                        );
+                                    }}
+                                />
+                                <span>{hobby}</span>
+                            </label>
+                        ))}
+                    </div>
                 </div>
                 <div>
                     <h1 className="font-bold dark text-2xl"> Cereri de participare </h1>
                     {pendingRequest.map((request) => (
-                        <div>
+                        <div key={request.id}>
                             <h1
                                 className="text-xl cursor-pointer hover:text-green-700 mt-4"
-                                onClick={() => {
-                                    navigate(`/profile/${request.username}`);
-                                }}
+                                onClick={() => navigate(`/profile/${request.username}`)}
                             >
                                 @{request.username}
                             </h1>
-                            <Button
-                                className="bg-green-700 mr-2 my-2"
-                                onClick={() => {
-                                    acceptRequest(request);
-                                }}
-                            >
+                            <Button className="bg-green-700 mr-2 my-2" onClick={() => acceptRequest(request)}>
                                 <span>Accepta</span>
                             </Button>
-                            <Button
-                                className="bg-red-500 mx-2 my-2"
-                                onClick={() => {
-                                    rejectRequest(request);
-                                }}
-                            >
+                            <Button className="bg-red-500 mx-2 my-2" onClick={() => rejectRequest(request)}>
                                 <span>Respinge</span>
                             </Button>
                         </div>
