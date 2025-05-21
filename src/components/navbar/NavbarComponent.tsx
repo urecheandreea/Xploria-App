@@ -1,13 +1,10 @@
 import { useEffect, useState } from "react";
 import {
-  Navbar,
   Typography,
-  IconButton,
   Button,
-  Input,
-  Card,
+  Menu,
+  MenuItem
 } from "@material-tailwind/react";
-import { Menu, MenuItem } from "@material-tailwind/react";
 import { useCollectionData } from "react-firebase-hooks/firestore";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useNavigate } from "react-router-dom";
@@ -16,10 +13,11 @@ import { db, signOutProcess, auth } from "../../Firebase/firebase";
 
 export default function NavbarComponent() {
   const [searchText, setSearchText] = useState("");
-  const [searchResults, setSearchResults] = useState([]); // this will be an array of user objects
-  const [searchTimeout, setSearchTimeout] = useState(null); // holds the reference to the timeout function
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchTimeout, setSearchTimeout] = useState(null);
 
   const navigate = useNavigate();
+  const [user] = useAuthState(auth);
 
   const handleSearchInputChange = (event) => {
     setSearchText(event.target.value);
@@ -29,24 +27,19 @@ export default function NavbarComponent() {
   const fetchQuery = query(usersRef);
   const data = useCollectionData(fetchQuery);
 
-  const [user] = useAuthState(auth);
-
   useEffect(() => {
     if (searchText === "") {
       setSearchResults([]);
       return;
     }
-    // clear any previous timeout
     if (searchTimeout !== null) {
       clearTimeout(searchTimeout);
     }
-    // set a new timeout to fetch data after 500ms
     setSearchTimeout(
       setTimeout(() => {
         const results = data?.[0].filter((user) => {
           return user.username.toLowerCase().includes(searchText.toLowerCase());
         });
-        console.log(results);
         setSearchResults(results);
       }, 500)
     );
@@ -58,94 +51,89 @@ export default function NavbarComponent() {
 
   return (
     <div className="mx-auto max-w-screen-xl px-4 py-3 relative">
-      <div className="flex items-center justify-center gap-4">
-        <div className="relative z-10 -mr-9 animate-pulse">
-          {" "}
-          {/* Ajustare offset cu ml-negativ */}
+      {/* Butoane sus dreapta */}
+      <div className="absolute top-4 right-4 flex gap-4">
+        <Button
+          size="sm"
+          className="bg-green-700 text-white px-6 py-2 text-sm"
+          onClick={handleProfileClick}
+        >
+          MY PROFILE
+        </Button>
+
+        <Button
+          size="sm"
+          className="bg-green-700 text-white px-6 py-2 text-sm"
+          onClick={() => {
+            const documentRefDatabaseUser = doc(db, "users", user.uid);
+            setDoc(
+              documentRefDatabaseUser,
+              {
+                twoFactorAuth: false,
+              },
+              { merge: true }
+            );
+            signOutProcess();
+            navigate("/login");
+          }}
+        >
+          LOG OUT
+        </Button>
+      </div>
+
+      {/* Titlu + frunză */}
+      <div className="flex flex-col items-center mt-10 mb-2">
+        <div className="flex items-center gap-2">
           <img
             src="src/assets/leafs-svgrepo-com (1).svg"
             alt="Frunze"
-            className="w-20 h-20 transform -rotate-45 opacity-90"
+            className="w-8 h-8 transform -rotate-45 opacity-90"
           />
+          <Typography
+            variant="h4"
+            className="cursor-pointer text-green-700 text-6xl font-bold font-poppins"
+            onClick={() => navigate("/")}
+          >
+            Xploria
+          </Typography>
         </div>
 
-        {/* Titlul */}
-        <Typography
-          variant="h6"
-          className="cursor-pointer py-1.5 text-green-700 text-6xl font-bold font-poppins"
-          onClick={() => navigate("/")}
-        >
-          Xploria
-        </Typography>
+        <hr className="border-t-4 border-green-500 w-1/2 mt-3" />
       </div>
 
-      {/* Dunga verde sub titlu */}
-      <hr className="border-t-4 border-green-500 w-1/2 mx-auto my-4" />
-
-      {/* Butoanele */}
-
-      {/* Căutare și Log Out */}
-      <div className="flex flex-col items-center space-y-6 mt-4">
+      {/* Search bar */}
+      <div className="flex flex-col items-center mt-6">
         <input
           type="search"
-          className="p-2 rounded-lg text-black text-center w-full"
+          className="p-2 rounded-lg text-black text-center w-full max-w-md"
           value={searchText}
           onChange={handleSearchInputChange}
           placeholder="Search"
         />
+      </div>
 
-        <div className="flex flex-row justify-center gap-4 w-1/2 ">
-          <Button
-            buttonType="filled"
-            size="regular"
-            className="bg-green-700 text-white w-1/2"
-            onClick={handleProfileClick}
-          >
-            My Profile
-          </Button>
-
-          <Button
-            size="regular"
-            className="bg-green-700 text-white w-1/2"
+      {/* Search dropdown */}
+      <Menu
+        className="absolute z-50 w-full"
+        direction="bottom"
+        open={searchText !== "" && searchResults.length > 0}
+        onClose={() => setSearchResults([])}
+      >
+        {searchResults.map((result) => (
+          <MenuItem
+            className="text-turq bg-transparent hover:bg-turq hover:text-white"
+            key={result.id}
             onClick={() => {
-              const documentRefDatabaseUser = doc(db, "users", user.uid);
-              setDoc(
-                documentRefDatabaseUser,
-                {
-                  twoFactorAuth: false,
-                },
-                { merge: true }
-              );
-              signOutProcess();
-              navigate("/login");
+              navigate(`/profile/${result.username}`);
+              setSearchText("");
+              setSearchResults([]);
+              window.location.reload();
             }}
           >
-            Log Out
-          </Button>
-        </div>
-
-        <Menu
-          className="absolute z-50 w-full"
-          direction="bottom"
-          open={searchText !== "" && searchResults.length > 0}
-          onClose={() => setSearchResults([])}
-        >
-          {searchResults.map((result) => (
-            <MenuItem
-              className="text-turq bg-transparent hover:bg-turq hover:text-white"
-              key={result.id}
-              onClick={() => {
-                navigate(`/profile/${result.username}`);
-                setSearchText("");
-                setSearchResults([]);
-                window.location.reload();
-              }}
-            >
-              {result.username}
-            </MenuItem>
-          ))}
-        </Menu>
-      </div>
+            {result.username}
+          </MenuItem>
+        ))}
+      </Menu>
     </div>
   );
 }
