@@ -123,7 +123,7 @@ const Post: FC<PostProps> = ({ group, groupId }) => {
         }
     };
     return (
-        <Card className="mb-10 bg-cardColor mx-10 h-full py-2">
+        <Card className="mb-10 bg-green-300 mx-10 h-full py-2">
             <div className="flex items-center w-full">
                 <div className="w-1/2 ml-10">
                     <Avatar src={avatar} variant="circular" size="md" className="rounded-full" />
@@ -140,7 +140,7 @@ const Post: FC<PostProps> = ({ group, groupId }) => {
                         {`${group.title}`}
                     </div>
                     {group.hobbyTags?.length > 0 && (
-                        <div className="text-sm italic text-gray-400 mt-1">
+                        <div className="text-sm italic text-black-400 mt-1">
                             Hobby-uri: {group.hobbyTags.join(', ')}
                         </div>
                     )}
