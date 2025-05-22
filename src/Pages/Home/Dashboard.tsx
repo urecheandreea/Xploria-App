@@ -183,12 +183,20 @@ const Dashboard = () => {
                     {groups.map((groupData) => (
                         <div key={groupData.id}>
                             {mode === 'matchmaking' && groupData.matchInfo && (
-                                <div className="italic text-gray-500 text-sm mx-10">
-                                    Tu și {groupData.matchInfo.commonFriends.join(', ')} aveți în comun hobby-uri ({groupData.matchInfo.sharedHobbies.join(', ')}) – uite un eveniment pentru voi:
-                                </div>
-                            )}
-                            <Post group={groupData.group} groupId={groupData.id} />
-                        </div>
+                            <div className="text-md md:text-lg text-gray-700 font-medium bg-gray-100 px-6 py-3 rounded-xl mx-10 mb-2 shadow-sm border-l-4 border-green-700">
+                                <span className="italic text-green-800 font-semibold">
+                                Tu și {groupData.matchInfo.commonFriends.join(', ')}
+                                </span>{" "}
+                                aveți în comun hobby-uri{" "}
+                                <span className="italic text-green-700 font-semibold">
+                            ({groupData.matchInfo.sharedHobbies.join(', ')})
+                            </span>{" "}
+                    – uite un eveniment pentru voi:
+                    </div>
+                )}
+  <Post group={groupData.group} groupId={groupData.id} />
+</div>
+
                     ))}
                 </div>
             </div>
