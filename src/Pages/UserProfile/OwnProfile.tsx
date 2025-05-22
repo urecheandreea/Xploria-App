@@ -31,9 +31,9 @@ const predefinedHobbies = [
 ];
 
 const OwnProfile = () => {
-  const [activeTab, setActiveTab] = useState<"friends" | "requests" | null>(
-    null
-  );
+  const [activeTab, setActiveTab] = useState<"friends" | "requests">("friends"); //| null>(
+  //   null
+  // );
   const [user] = useAuthState(auth);
   const [userName, setUserName] = useState("");
   const [name, setName] = useState("");
