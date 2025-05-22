@@ -21,6 +21,7 @@ const Group = ({ groupId }) => {
     const [location, setLocation] = useState('');
     const [eventDate, setEventDate] = useState<Date>(new Date());
     const [image, setImage] = useState<string>('');
+    const [hobbies, setHobbies] = useState<string[]>([]);
     const [eventDateString, setEventDateString] = useState<string>('');
     const [user] = useAuthState(auth);
 
@@ -59,6 +60,7 @@ const Group = ({ groupId }) => {
             setDescription(data?.description);
             setParticipants(data?.participants);
             setImage(data?.image);
+            setHobbies(data?.hobbyTags || []);
             setLocation(data?.location);
             setEventDate(data?.eventDate);
             setEventDateString(data?.eventDate?.toDate().toLocaleDateString());
@@ -138,6 +140,17 @@ const Group = ({ groupId }) => {
         });
     };
 
+    const deleteComment = async (commentIndex) => {
+        const commentsRef = doc(db, 'comments', groupId);
+        const dataRef = await getDoc(commentsRef);
+        const existingComments = dataRef?.data()?.comments;
+
+        const updatedComments = existingComments.filter((_, index) => index !== commentIndex);
+
+        await setDoc(commentsRef, { comments: updatedComments }, { merge: true });
+        setComments(updatedComments);
+    };
+
     useEffect(() => {
         checkTwoFactorAuth();
         getGroupData();
@@ -161,6 +174,14 @@ const Group = ({ groupId }) => {
                             <p className="text-xl font-bold text-left text-white pt-10">Descriere:</p>
                             <p className="text-lg text-left text-white">{description}</p>
                             <br />
+                            <p className="text-xl font-bold text-left text-white">Hobby-uri:</p>
+                            <div className="flex flex-wrap gap-2 mb-4">
+                            {hobbies.map((hobby, index) => (
+                                <span key={index} className="px-3 py-1 bg-green-700 text-white rounded-full text-sm">
+                                {hobby}
+                                </span>
+                            ))}
+                            </div>
                             <p className="text-xl font-bold text-left text-white">Locatie:</p>
                             <p className="text-lg text-left text-white">{location}</p>
                             <br />
@@ -191,7 +212,7 @@ const Group = ({ groupId }) => {
                         <div className="w-1/3 ml-20">
                             <h1 className="text-2xl font-bold text-left text-white mb-10">Comentarii:</h1>
                             <div className="flex flex-col">
-                                {comments.map((comment) => (
+                                {/* {comments.map((comment) => (
                                     <div className="flex flex-row gap-5">
                                         <img src={comment.user_profile_picture} className="w-10 h-10 rounded-full object-cover" />
                                         <div className="flex flex-col gap-1">
@@ -204,6 +225,29 @@ const Group = ({ groupId }) => {
                                             <p className="text-lg text-left text-white">{comment.text}</p>
                                         </div>
                                     </div>
+                                ))} */}
+                                {comments.map((comment, index) => (
+                                <div key={index} className="flex flex-row gap-5 items-start mb-4">
+                                    <img src={comment.user_profile_picture} className="w-10 h-10 rounded-full object-cover" />
+                                    <div className="flex flex-col gap-1 flex-1">
+                                    <p
+                                        className="text-lg text-left text-white cursor-pointer hover:text-green-700"
+                                        onClick={() => navigate(`/profile/${comment.username}`)}
+                                    >
+                                        {comment.username}
+                                    </p>
+                                    <p className="text-lg text-left text-white">{comment.text}</p>
+                                    </div>
+                                    {user?.uid === comment.id_user && (
+                                    <button
+                                        onClick={() => deleteComment(index)}
+                                        className="text-red-500 text-sm hover:text-red-700"
+                                        title="Șterge comentariul"
+                                    >
+                                        ✕
+                                    </button>
+                                    )}
+                                </div>
                                 ))}
                             </div>
                             <Button className="mt-10 bg-green-700" onClick={addComment}>
