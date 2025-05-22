@@ -4,10 +4,11 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { Group } from '../../utils/Types';
 import { auth } from '../../Firebase/firebase';
 import { createDocument, updateDocument } from '../../utils/util-functions';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../../Firebase/firebase';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
+
 
 const predefinedHobbies = [
   "fotbal",
@@ -70,24 +71,71 @@ const AdminPage = ({ groupId }) => {
         }
     };
 
-    const updateDataGroup = async () => {
-        const newDate = eventDate !== null ? eventDate : currentDate.toISOString();
-        await updateDocument('groups', groupId, {
-            title: title,
-            description: description,
-            location: location,
-            eventDate: newDate,
-            hobbyTags: selectedHobbies,
-        });
+    // const updateDataGroup = async () => {
+    //     const newDate = eventDate !== null ? eventDate : currentDate.toISOString();
+    //     await updateDocument('groups', groupId, {
+    //         title: title,
+    //         description: description,
+    //         location: location,
+    //         eventDate: newDate,
+    //         hobbyTags: selectedHobbies,
+    //     });
 
+    //     Swal.fire({
+    //         icon: 'success',
+    //         title: 'Succes',
+    //         text: 'Evenimentul a fost modificat cu succes!',
+    //         iconColor: '#307014',
+    //         confirmButtonColor: '#307014',
+    //     });
+    // };
+    const updateDataGroup = async () => {
+    const newDate = eventDate !== null ? eventDate : currentDate.toISOString();
+    await updateDocument('groups', groupId, {
+        title: title,
+        description: description,
+        location: location,
+        eventDate: newDate,
+        hobbyTags: selectedHobbies,
+    });
+
+    Swal.fire({
+        icon: 'success',
+        title: 'Succes',
+        text: 'Evenimentul a fost modificat cu succes!',
+        iconColor: '#307014',
+        confirmButtonColor: '#307014',
+    }).then(() => {
+        navigate(-1); // ⬅️ Revine la pagina anterioară
+    });
+};
+    const deleteGroup = async () => {
+    const confirm = await Swal.fire({
+        title: 'Esti sigur?',
+        text: 'Evenimentul va fi sters definitiv!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Da, sterge-l',
+        cancelButtonText: 'Anuleaza',
+    });
+
+    if (confirm.isConfirmed) {
+        await deleteDoc(doc(db, 'groups', groupId));
         Swal.fire({
             icon: 'success',
-            title: 'Succes',
-            text: 'Evenimentul a fost modificat cu succes!',
+            title: 'Sters!',
+            text: 'Evenimentul a fost sters cu succes.',
             iconColor: '#307014',
             confirmButtonColor: '#307014',
+        }).then(() => {
+            navigate('/'); // Du-l pe user înapoi acasă sau oriunde vrei tu
         });
-    };
+    }
+};
+
+
 
     const checkTwoFactorAuth = async () => {
         const documentRefDatabase = doc(db, 'users', user?.uid);
@@ -253,6 +301,9 @@ const AdminPage = ({ groupId }) => {
                 </Button>
                 <Button className="bg-green-700" onClick={updateDataGroup}>
                     <span>Modifica</span>
+                </Button>
+                <Button className="bg-red-700" onClick={deleteGroup}>
+                <span>Sterge</span>
                 </Button>
             </DialogFooter>
         </div>
