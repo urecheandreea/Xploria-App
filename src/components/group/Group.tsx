@@ -11,6 +11,7 @@ import { getDownloadURL, ref } from 'firebase/storage';
 import { Card, CardBody } from '@material-tailwind/react';
 import { useNavigate } from 'react-router-dom';
 
+
 const Group = ({ groupId }) => {
     const navigate = useNavigate();
     const [title, setTitle] = useState('');

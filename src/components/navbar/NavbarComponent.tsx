@@ -10,6 +10,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { useNavigate } from "react-router-dom";
 import { collection, query, doc, getDoc, setDoc } from "firebase/firestore";
 import { db, signOutProcess, auth } from "../../Firebase/firebase";
+import leafIcon from "../../assets/leafs-svgrepo-com (1).svg";
 
 export default function NavbarComponent() {
   const [searchText, setSearchText] = useState("");
@@ -85,7 +86,7 @@ export default function NavbarComponent() {
       <div className="flex flex-col items-center mt-10 mb-2">
         <div className="flex items-center gap-2">
           <img
-            src="src/assets/leafs-svgrepo-com (1).svg"
+            src={leafIcon}
             alt="Frunze"
             className="w-20 h-20 transform -rotate-45 opacity-90"
           />

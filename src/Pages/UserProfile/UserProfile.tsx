@@ -14,6 +14,7 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useNavigate } from "react-router-dom";
 import { db, auth, storage } from "../../Firebase/firebase";
+import { useParams } from "react-router-dom";
 
 /* interface for the props of the component */
 interface UserProfileProps {
@@ -66,88 +67,165 @@ const UserProfile = (props: UserProfileProps = { id: "" }) => {
   }
 
   /* get the data of the user that you want to add */
+  // const getUserData = async () => {
+  //   /* document reference to database of the user */
+  //   const documentRefDatabaseUser = doc(db, "users", props.id);
+  //   /* get the collection data from the database */
+  //   const documentDataUser = await getDoc(documentRefDatabaseUser);
+
+  //   /* get the data from the database */
+  //   if (documentDataUser.exists()) {
+  //     const data = documentDataUser.data();
+  //     /* update the user states */
+  //     setUserName(data?.username);
+  //     setName(data?.name);
+  //     setBiography(data?.biography);
+  //     setHobbyList(data?.hobbyList);
+  //     setFriendsList(data?.friendsList);
+  //     setProfilePicture(data?.profilePicture);
+
+  //     const temp = [];
+
+  //     for (const friend of data?.friendsList) {
+  //       const q = query(
+  //         collection(db, "users"),
+  //         where("username", "==", friend.username)
+  //       );
+  //       const querySnapshot = await getDocs(q);
+
+  //       querySnapshot.forEach((doc) => {
+  //         // doc.data() is never undefined for query doc snapshots
+  //         temp.push({
+  //           username: doc.data().username,
+  //           profilePicture: doc.data().profilePicture,
+  //           userId: doc.id,
+  //         });
+  //       });
+  //     }
+  //     setFriendsListWithPictures(temp);
+  //   }
+
+  //   /* get the list of friends of the user for which you want to see the profile with username */
+  //   const userFriendList = documentDataUser.data()?.friendsList;
+  //   const friendUsername = documentDataUser.data()?.username;
+  //   const userNameFriendList = userFriendList.map(
+  //     (friend: FriendObjectList) => friend.username
+  //   );
+
+  //   /* get userNames of the user that is logged in */
+  //   const documentRefDatabaseUserLogged = doc(db, "users", user?.uid);
+  //   const documentDataUserLogged = await getDoc(documentRefDatabaseUserLogged);
+  //   const userNameLoggedd = documentDataUserLogged.data()?.username;
+
+  //   /* check if the two users are friends */
+  //   if (userNameFriendList.includes(userNameLoggedd)) {
+  //     /* hide the button for sending friend request */
+  //     setStatusAlreadyFriend(true);
+  //   }
+
+  //   /* get the list of pending request of the user for which you want
+  //    *  to see the profile with username
+  //    */
+  //   const userPendingRequestList = documentDataUser.data()?.pendingRequest;
+  //   const userNamePendingRequestList = userPendingRequestList.map(
+  //     (friend: FriendObjectList) => friend.username
+  //   );
+  //   const userLoggedPendingRequestList =
+  //     documentDataUserLogged.data()?.pendingRequest;
+  //   const userNameLoggedPendingRequestList = userLoggedPendingRequestList.map(
+  //     (friend: FriendObjectList) => friend.username
+  //   );
+
+  //   if (userNameLoggedPendingRequestList.includes(friendUsername)) {
+  //     /* hide the button for sending friend request */
+  //     setStatusReceivedRequest(true);
+  //   }
+
+  //   /* check if the user that is logged in has sent a friend request
+  //    *  to the user for which you want to see the profile
+  //    */
+  //   if (userNamePendingRequestList.includes(userNameLoggedd)) {
+  //     /* hide the button for sending friend request */
+  //     setStatusPendingRequest(true);
+  //   }
+  // };
+
   const getUserData = async () => {
-    /* document reference to database of the user */
-    const documentRefDatabaseUser = doc(db, "users", props.id);
-    /* get the collection data from the database */
-    const documentDataUser = await getDoc(documentRefDatabaseUser);
+  // Reset all friend status flags first
+  setStatusAlreadyFriend(false);
+  setStatusPendingRequest(false);
+  setStatusReceivedRequest(false);
 
-    /* get the data from the database */
-    if (documentDataUser.exists()) {
-      const data = documentDataUser.data();
-      /* update the user states */
-      setUserName(data?.username);
-      setName(data?.name);
-      setBiography(data?.biography);
-      setHobbyList(data?.hobbyList);
-      setFriendsList(data?.friendsList);
-      setProfilePicture(data?.profilePicture);
+  // Reset lists
+  setFriendsList([]);
+  setFriendsListWithPictures([]);
 
-      const temp = [];
+  const documentRefDatabaseUser = doc(db, "users", props.id);
+  const documentDataUser = await getDoc(documentRefDatabaseUser);
 
-      for (const friend of data?.friendsList) {
-        const q = query(
-          collection(db, "users"),
-          where("username", "==", friend.username)
-        );
-        const querySnapshot = await getDocs(q);
+  if (documentDataUser.exists()) {
+    const data = documentDataUser.data();
+    setUserName(data?.username);
+    setName(data?.name);
+    setBiography(data?.biography);
+    setHobbyList(data?.hobbyList);
+    setFriendsList(data?.friendsList);
+    setProfilePicture(data?.profilePicture);
 
-        querySnapshot.forEach((doc) => {
-          // doc.data() is never undefined for query doc snapshots
-          temp.push({
-            username: doc.data().username,
-            profilePicture: doc.data().profilePicture,
-            userId: doc.id,
-          });
+    const temp = [];
+
+    for (const friend of data?.friendsList) {
+      const q = query(
+        collection(db, "users"),
+        where("username", "==", friend.username)
+      );
+      const querySnapshot = await getDocs(q);
+
+      querySnapshot.forEach((doc) => {
+        temp.push({
+          username: doc.data().username,
+          profilePicture: doc.data().profilePicture,
+          userId: doc.id,
         });
-      }
-      setFriendsListWithPictures(temp);
+      });
     }
+    setFriendsListWithPictures(temp);
+  }
 
-    /* get the list of friends of the user for which you want to see the profile with username */
-    const userFriendList = documentDataUser.data()?.friendsList;
-    const friendUsername = documentDataUser.data()?.username;
-    const userNameFriendList = userFriendList.map(
+  const userFriendList = documentDataUser.data()?.friendsList;
+  const friendUsername = documentDataUser.data()?.username;
+  const userNameFriendList = userFriendList.map(
+    (friend: FriendObjectList) => friend.username
+  );
+
+  const documentRefDatabaseUserLogged = doc(db, "users", user?.uid);
+  const documentDataUserLogged = await getDoc(documentRefDatabaseUserLogged);
+  const userNameLoggedd = documentDataUserLogged.data()?.username;
+
+  if (userNameFriendList.includes(userNameLoggedd)) {
+    setStatusAlreadyFriend(true);
+  }
+
+  const userPendingRequestList = documentDataUser.data()?.pendingRequest || [];
+  const userNamePendingRequestList = userPendingRequestList.map(
+    (friend: FriendObjectList) => friend.username
+  );
+
+  const userLoggedPendingRequestList =
+    documentDataUserLogged.data()?.pendingRequest || [];
+  const userNameLoggedPendingRequestList =
+    userLoggedPendingRequestList.map(
       (friend: FriendObjectList) => friend.username
     );
 
-    /* get userNames of the user that is logged in */
-    const documentRefDatabaseUserLogged = doc(db, "users", user?.uid);
-    const documentDataUserLogged = await getDoc(documentRefDatabaseUserLogged);
-    const userNameLoggedd = documentDataUserLogged.data()?.username;
+  if (userNameLoggedPendingRequestList.includes(friendUsername)) {
+    setStatusReceivedRequest(true);
+  }
 
-    /* check if the two users are friends */
-    if (userNameFriendList.includes(userNameLoggedd)) {
-      /* hide the button for sending friend request */
-      setStatusAlreadyFriend(true);
-    }
-
-    /* get the list of pending request of the user for which you want
-     *  to see the profile with username
-     */
-    const userPendingRequestList = documentDataUser.data()?.pendingRequest;
-    const userNamePendingRequestList = userPendingRequestList.map(
-      (friend: FriendObjectList) => friend.username
-    );
-    const userLoggedPendingRequestList =
-      documentDataUserLogged.data()?.pendingRequest;
-    const userNameLoggedPendingRequestList = userLoggedPendingRequestList.map(
-      (friend: FriendObjectList) => friend.username
-    );
-
-    if (userNameLoggedPendingRequestList.includes(friendUsername)) {
-      /* hide the button for sending friend request */
-      setStatusReceivedRequest(true);
-    }
-
-    /* check if the user that is logged in has sent a friend request
-     *  to the user for which you want to see the profile
-     */
-    if (userNamePendingRequestList.includes(userNameLoggedd)) {
-      /* hide the button for sending friend request */
-      setStatusPendingRequest(true);
-    }
-  };
+  if (userNamePendingRequestList.includes(userNameLoggedd)) {
+    setStatusPendingRequest(true);
+  }
+};
 
   const checkTwoFactorAuth = async () => {
     const documentRefDatabase = doc(db, "users", user?.uid);
@@ -170,10 +248,17 @@ const UserProfile = (props: UserProfileProps = { id: "" }) => {
   };
 
   /* get the data of the user that is logged in */
+  // useEffect(() => {
+  //   checkTwoFactorAuth();
+  //   getUserData();
+  // }, []);
   useEffect(() => {
-    checkTwoFactorAuth();
-    getUserData();
-  }, []);
+  checkTwoFactorAuth();
+}, []);
+
+useEffect(() => {
+  getUserData();
+}, [props.id]);
 
   /*
    * The function that sends a friend request to the user that you want to add

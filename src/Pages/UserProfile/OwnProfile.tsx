@@ -347,35 +347,44 @@ const OwnProfile = () => {
   }, [user]);
 
   const uploadImage = async () => {
-    if (imageUpload === null) {
-      return;
-    }
+    if (imageUpload === null) return;
 
     const imageRef = ref(storage, `profilePictures/${userName}`);
-    // get the download url and save it in the profilePicture field of the current user
-    getDownloadURL(imageRef).then((url) => {
-      setDoc(
-        doc(db, "users", user?.uid),
-        {
-          profilePicture: url,
-        },
-        {
-          merge: true,
-        }
-      );
-      setProfilePicture(url);
+
+    // Upload first
+    await uploadBytes(imageRef, imageUpload);
+
+    // Then get the download URL
+    const url = await getDownloadURL(imageRef);
+
+    await setDoc(
+      doc(db, "users", user?.uid),
+      {
+        profilePicture: url,
+      },
+      {
+        merge: true,
+      }
+    );
+
+    setProfilePicture(url);
+
+    // Show success message
+    Swal.fire({
+      icon: "success",
+      title: "Profile picture updated successfully!",
+      showConfirmButton: false,
+      timer: 1500,
+      confirmButtonColor: "#307014",
+      iconColor: "#307014",
     });
-    uploadBytes(imageRef, imageUpload).then(() => {
-      Swal.fire({
-        icon: "Success",
-        title: "Profile picture updated successfully!",
-        showConfirmButton: false,
-        timer: 1500,
-        confirmButtonColor: "#307014",
-        iconColor: "#307014",
-      });
-    });
+
+    // Reset file input and state
+    setImageUpload(null);
+    const input = document.getElementById("uploadInput") as HTMLInputElement;
+    if (input) input.value = "";
   };
+
 
   return (
     <div className="min-h-screen bg-gray-100 py-10 px-4">
@@ -400,13 +409,14 @@ const OwnProfile = () => {
               >
                 Select profile picture
               </Button>
+            {imageUpload && (
               <Button
                 className="bg-green-500 text-white text-sm"
                 onClick={uploadImage}
-                disabled={!imageUpload}
               >
                 Confirm upload
               </Button>
+            )}
             </div>
 
             <h1 className="text-2xl font-bold text-gray-800 mt-4">{name}</h1>
