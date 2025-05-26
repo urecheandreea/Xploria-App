@@ -21,6 +21,7 @@ const predefinedHobbies = [
   "board games",
   "dans",
   "fotografie",
+  "teatru si film"
 ];
 
 const AdminPage = ({ groupId }) => {
